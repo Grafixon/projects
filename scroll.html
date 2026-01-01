@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Scroll animation — single file</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+ /* ========== reset & base ========== */
+:root{
+  --bg-1: #0f3d3e;      /* tmavý teal */
+  --bg-2: #e6f0eb;      /* světlý přechod */
+  --accent: #d4a373;   /* zlatý akcent */
+  --muted: #5f7c7a;
+  --card-bg: #f9fbfa;
+  --text-dark: #1f2f2e;
+}
+
+html,body{
+  height:100%;
+  margin:0;
+}
+
+html{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,0.06), transparent 40%),
+    linear-gradient(180deg,var(--bg-1) 0%, #1b5e63 50%, var(--bg-2) 100%);
+  color: var(--text-dark);
+  scroll-behavior: smooth;
+}
+
+body{
+  font-family: 'Poppins', system-ui, sans-serif;
+  line-height:1.5;
+  font-size:16px;
+}
+
+a{ text-decoration:none; color:inherit; }
+
+/* ========== HEADER ========== */
+.page-header{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#f4fdfc;
+  padding:2rem;
+  position:relative;
+}
+
+.page-header::after{
+  content:"";
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:100%;
+  height:160px;
+  background: linear-gradient(
+    to bottom,
+    rgba(15,61,62,0) 0%,
+    rgba(15,61,62,0.8) 60%,
+    rgba(15,61,62,1) 100%
+  );
+}
+
+.page-header h1{
+  font-size:clamp(32px,6vw,52px);
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+
+/* ========== SCROLL SECTION ========== */
+#scroll-section{
+  position:relative;
+  min-height:2200px;
+  padding-bottom:8rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15,61,62,1) 0%,
+      rgba(27,94,99,1) 30%,
+      rgba(230,240,235,1) 100%
+    );
+}
+
+/* smooth bottom transition */
+#scroll-section::after{
+  content:"";
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:100%;
+  height:180px;
+  background: linear-gradient(
+    to bottom,
+    rgba(230,240,235,1) 0%,
+    rgba(230,240,235,0.6) 40%,
+    rgba(230,240,235,0) 100%
+  );
+  pointer-events:none;
+}
+
+/* ========== SVG LINE ========== */
+.line-svg{
+  position:absolute;
+  top:55vh;
+  left:0;
+  width:100%;
+  height:calc(100% - 55vh);
+  z-index:1;
+  opacity:0.6;
+  pointer-events:none;
+}
+
+.line-svg path{
+  stroke:#cfe3dc;
+  stroke-width:140;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* ========== CONTENT ========== */
+.container{
+  max-width:1220px;
+  margin:0 auto;
+  padding:4rem 2rem;
+  position:relative;
+  z-index:2;
+}
+
+h2{
+  font-size:clamp(36px,6vw,58px);
+  font-weight:800;
+  color:#eef7f5;
+  width:60%;
+  margin-left:auto;
+  text-align:right;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.7s ease;
+}
+
+h2.visible{
+  opacity:1;
+  transform:none;
+}
+
+/* ========== GRID ========== */
+.layout-container{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:1.5rem;
+  padding-top:6rem;
+}
+
+/* ========== BOXES ========== */
+.box{
+  background:var(--card-bg);
+  border-radius:18px;
+  padding:2.75rem;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+  opacity:0;
+  transform:translateY(20px) scale(.97);
+  transition:.7s cubic-bezier(.2,.9,.3,1);
+}
+
+.box.visible{
+  opacity:1;
+  transform:none;
+}
+
+.box h3{
+  font-size:1.6rem;
+  font-weight:800;
+  color:var(--text-dark);
+}
+
+.box p{
+  color:var(--muted);
+  font-size:0.95rem;
+}
+
+/* ========== BUTTON ========== */
+.btn{
+  display:inline-block;
+  background:var(--bg-1);
+  color:#fdfefe;
+  padding:12px 28px;
+  border-radius:999px;
+  font-weight:700;
+  transition:.25s ease;
+}
+
+.btn:hover{
+  background:var(--accent);
+  color:#1f2f2e;
+  transform:translateY(-3px);
+}
+
+/* ========== IMAGES ========== */
+.layout-container img{
+  border-radius:18px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.15);
+  opacity:0;
+  transform:translateY(35px) scale(.96);
+  transition:.8s cubic-bezier(.2,.9,.3,1);
+}
+
+.layout-container img.visible{
+  opacity:1;
+  transform:none;
+}
+
+/* ========== GRID POSITIONS (TVÉ) ========== */
+.box-1{ grid-column:3 / span 3; grid-row:span 2; }
+.image-1{ grid-column:1 / span 2; grid-row:2 / span 2; margin-top:80px; }
+.box-2{ grid-column:2 / span 3; grid-row:span 2; margin-top:2rem; }
+.image-2{ grid-column:6; grid-row:5; align-self:end; }
+.box-3{ grid-column:3 / span 3; margin-top:7rem; }
+.image-3{ grid-column:1 / span 2; justify-self:end; margin-top:2.5rem; }
+.box-4{ grid-column:1 / span 3; margin-top:11rem; margin-bottom:-3rem; }
+
+/* ========== BOTTOM SECTION ========== */
+.bottom{
+  height:60vh;
+  background:linear-gradient(
+    180deg,
+    rgba(230,240,235,0) 0%,
+    rgba(230,240,235,1) 60%
+  );
+}
+
+/* ========== MOBILE ========== */
+@media (max-width:900px){
+  .layout-container{ grid-template-columns:1fr; }
+  .box, img{ grid-column:auto !important; }
+  h2{ width:100%; text-align:left; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Scroll down to see the animation.</h1>
+</header>
+
+<section id="scroll-section">
+  <!-- SVG pozadí -->
+  <svg class="line-svg" role="img" preserveAspectRatio="xMidYMin slice" viewBox="-480 0 2300 2241" aria-hidden="true">
+    <path id="overview-path" d="M-841 100H584c124 0 225 101 225 225v0c0 124-101 225-225 225h-95a281 281 0 00-281 281v0c0 155 125 281 281 281h442c167 0 304 136 304 304v0c0 168-137 304-304 304H795a439 439 0 00-439 439v82"></path>
+  </svg>
+
+  <div class="container">
+    <h2 id="section-heading">Section Heading</h2>
+
+    <div class="layout-container">
+      <div class="box box-1">
+        <h3>Photo 1</h3>
+        <p>Picture from Penny from Pixabay</p>
+        <a href="#" class="btn">Find out more</a>
+      </div>
+
+      <img class="image-1" src="https://cdn.pixabay.com/photo/2023/03/22/04/26/pagoda-7868621_1280.jpg" width="400" height="400" alt="Photo 1">
+
+      <div class="box box-2">
+        <h3>Photo 2</h3>
+        <p>Picture from yrcca from Pixabay</p>
+        <a href="#" class="btn">Find out more</a>
+      </div>
+
+      <img class="image-2" src="https://cdn.pixabay.com/photo/2019/05/01/12/24/butterfly-4170736_1280.jpg" width="500" height="400" alt="Photo 2">
+
+      <div class="box box-3">
+        <h3>Photo 3</h3>
+        <p>Picture from Nina Butts from Pixabay</p>
+        <a href="#" class="btn">Find out more</a>
+      </div>
+
+      <img class="image-3" src="https://cdn.pixabay.com/photo/2018/10/21/12/48/nature-3762842_1280.jpg" width="400" height="400" alt="Photo 3">
+
+      <div class="box box-4">
+        <h3>Text</h3>
+        <p>Hi guys, please follow me.</p>
+        <a href="#" class="btn">Find out more</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bottom"></section>
+
+<script>
+/*
+  JS: - animuje čáru SVG podle pozice scrollu v rámci sekce
+      - odhalí obrázky, boxy a nadpis pomocí IntersectionObserver
+*/
+
+/* ---------- SVG stroke setup & scroll animation ---------- */
+(function(){
+  const path = document.getElementById('overview-path');
+  if (!path) return;
+
+  const pathLen = path.getTotalLength();
+  // nastavíme dash tak, aby byla čára "skrytá"
+  path.style.strokeDasharray = pathLen;
+  path.style.strokeDashoffset = pathLen;
+
+  // cílová sekce pro měření
+  const section = document.getElementById('scroll-section');
+
+  function updateStroke(){
+    const rect = section.getBoundingClientRect();
+    const winH = window.innerHeight;
+    // progress 0..1 když top sekce je v plném záběru a když bottom sekce je nahoře
+    const start = winH * 0.15; // kdy začne animace
+    const end = winH * 0.85 + section.offsetHeight; // kdy skončí (relativní)
+    // používáme relativní pozici: čím více sekce projde viewportem, tím větší progress
+    const visibleTop = Math.max(0, Math.min(rect.bottom, winH) - Math.max(rect.top, 0));
+    // jednoduchý progress na základě top a height
+    const total = rect.height + winH;
+    const offset = Math.min(Math.max((winH - rect.top) / total, 0), 1);
+    const dash = pathLen * (1 - offset);
+    path.style.strokeDashoffset = dash;
+  }
+
+  // update na scroll/resize s throttle
+  let ticking = false;
+  function onScroll(){
+    if (!ticking){
+      window.requestAnimationFrame(() => {
+        updateStroke();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  // počáteční volání
+  updateStroke();
+})();
+
+/* ---------- Reveal elements (images, boxes, heading) ---------- */
+(function(){
+  const options = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.12
+  };
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const el = entry.target;
+      if (entry.isIntersecting){
+        el.classList.add('visible');
+        // pokud nechceme aby se odstraňovalo, odpojíme ho
+        io.unobserve(el);
+      }
+    });
+  }, options);
+
+  // cílové elementy
+  const imgs = document.querySelectorAll('.layout-container img');
+  const boxes = document.querySelectorAll('.box');
+  const title = document.getElementById('section-heading');
+
+  imgs.forEach(i => io.observe(i));
+  boxes.forEach(b => io.observe(b));
+  if (title) io.observe(title);
+})();
+</script>
+
+</body>
+</html>
